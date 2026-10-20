@@ -21,7 +21,7 @@ data class FuelCalculationResult(
 object FuelCalculator {
     private val ZERO = BigDecimal.ZERO
     private val HUNDRED = BigDecimal("100")
-    private val MILES_TO_KM = BigDecimal("1.609344")
+    private val MILES_TO_KM = BigDecimal("1.60925")
 
     fun convertDistanceToKilometers(value: BigDecimal, unit: DistanceUnit): BigDecimal {
         return if (unit == DistanceUnit.MILES) value.multiply(MILES_TO_KM) else value
