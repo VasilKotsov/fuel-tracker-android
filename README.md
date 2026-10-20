@@ -1,18 +1,25 @@
 # Fuel Tracker Android
 
-A minimal Android app for tracking fuel consumption and costs offline.
+A minimal Android app for tracking fuel consumption, cost, and mileage calculations offline.
 
 ## First milestone
 
-- Main input form for liters, total price, distance, and unit selection
-- Automatic calculations for fuel consumption, cost per kilometer, and price per liter
-- Validation for invalid and unsafe values
-- JUnit tests for the calculator
-- GitHub Actions workflow for a debug APK build
+- Main form for liters, total price, distance, and distance unit selection
+- Automatic calculation of fuel consumption and cost metrics
+- Validation for invalid, zero, and negative inputs
+- Unit tests for the calculator logic
+- GitHub Actions workflow to build a debug APK
 
-## Local build
+## Project structure
+
+- `app/` — Android application source
+- `app/src/main/java/com/example/fueltracker/` — app logic and Compose UI
+- `app/src/test/java/com/example/fueltracker/` — JUnit tests
+- `.github/workflows/` — CI workflow for Android builds
+
+## Local development
 
 ```bash
+chmod +x gradlew
 ./gradlew test
 ./gradlew assembleDebug
-```
