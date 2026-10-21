@@ -19,7 +19,7 @@ android {
 
     buildTypes {
         debug {
-            // Let AGP use the default debug keystore.
+            // use default AGP debug keystore
         }
         release {
             isMinifyEnabled = false
