@@ -1,8 +1,8 @@
 package com.example.fueltracker
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import android.content.Context
 
 class FuelPreferences(context: Context) {
     private val prefs = context.getSharedPreferences("fuel_tracker", Context.MODE_PRIVATE)
