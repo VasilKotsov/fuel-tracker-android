@@ -1,47 +1,21 @@
 package com.example.fueltracker
 
-import java.math.BigDecimal
-import java.math.RoundingMode
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import android.content.Context
 
-data class FuelSummary(
-    val liters: Double,
-    val totalCost: Double,
-    val miles: Double,
-    val pricePerLiter: Double,
-    val consumptionLPer100Mi: Double,
-    val efficiencyMiPerL: Double,
-    val costPerMile: Double,
-)
+class FuelPreferences(context: Context) {
+    private val prefs = context.getSharedPreferences("fuel_tracker", Context.MODE_PRIVATE)
+    private val gson = Gson()
 
-object FuelCalculator {
-
-    fun fromTopUp(
-        liters: Double,
-        totalCost: Double,
-        miles: Double,
-    ): FuelSummary {
-        val safeMiles = if (miles <= 0.0) 1.0 else miles
-        val safeLiters = if (liters <= 0.0) 1.0 else liters
-
-        val pricePerLiter = totalCost / safeLiters
-        val consumptionLPer100Mi = (safeLiters / safeMiles) * 100.0
-        val efficiencyMiPerL = safeMiles / safeLiters
-        val costPerMile = totalCost / safeMiles
-
-        return FuelSummary(
-            liters = liters,
-            totalCost = totalCost,
-            miles = miles,
-            pricePerLiter = pricePerLiter,
-            consumptionLPer100Mi = consumptionLPer100Mi,
-            efficiencyMiPerL = efficiencyMiPerL,
-            costPerMile = costPerMile,
-        )
+    fun saveRecords(records: List<FuelRecord>) {
+        val json = gson.toJson(records)
+        prefs.edit().putString("records", json).apply()
     }
 
-    fun round2(value: Double): Double {
-        return BigDecimal(value.toString())
-            .setScale(2, RoundingMode.HALF_UP)
-            .toDouble()
+    fun loadRecords(): List<FuelRecord> {
+        val json = prefs.getString("records", null) ?: return emptyList()
+        val type = object : TypeToken<List<FuelRecord>>() {}.type
+        return gson.fromJson(json, type) ?: emptyList()
     }
 }
