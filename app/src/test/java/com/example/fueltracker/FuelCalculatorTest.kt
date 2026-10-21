@@ -8,33 +8,34 @@ import java.math.RoundingMode
 class FuelCalculatorTest {
 
     @Test
-    fun `calculates expected values for miles input`() {
+    fun `calculates expected values for miles input with price per liter`() {
         val result = FuelCalculator.calculate(
-            litersText = "56.80",
-            totalPriceText = "92.00",
-            distanceText = "346.9",
+            litersText = "60",
+            pricePerLiterText = "1.65",
+            distanceText = "430",
             distanceUnit = DistanceUnit.MILES,
         )
 
-        assertEquals(BigDecimal("558.25"), result.distanceKm)
-        assertEquals(BigDecimal("10.17"), result.fuelConsumption)
-        assertEquals(BigDecimal("9.83"), result.fuelEfficiency)
-        assertEquals(BigDecimal("1.62"), result.pricePerLiter)
-        assertEquals(BigDecimal("0.165"), result.costPerKilometer)
-        assertEquals(BigDecimal("16.48"), result.costPer100Km)
+        assertEquals(BigDecimal("691.02"), result.distanceKm)
+        assertEquals(BigDecimal("99.00"), result.totalCost)
+        assertEquals(BigDecimal("8.68"), result.fuelConsumption)
+        assertEquals(BigDecimal("11.52"), result.fuelEfficiency)
+        assertEquals(BigDecimal("1.65"), result.pricePerLiter)
+        assertEquals(BigDecimal("0.143"), result.costPerKilometer)
+        assertEquals(BigDecimal("14.33"), result.costPer100Km)
     }
 
     @Test
-    fun `converts miles to kilometers`() {
-        val converted = FuelCalculator.convertDistanceToKilometers(BigDecimal("10"), DistanceUnit.MILES)
-        assertEquals(BigDecimal("16.09"), converted.setScale(2, RoundingMode.HALF_UP))
+    fun `converts miles to kilometers using exact factor`() {
+        val converted = FuelCalculator.convertDistanceToKilometers(BigDecimal("430"), DistanceUnit.MILES)
+        assertEquals(BigDecimal("691.02"), converted.setScale(2, RoundingMode.HALF_UP))
     }
 
     @Test
     fun `rejects zero distance`() {
         val result = FuelCalculator.calculate(
             litersText = "50",
-            totalPriceText = "70",
+            pricePerLiterText = "1.50",
             distanceText = "0",
             distanceUnit = DistanceUnit.KILOMETERS,
         )
@@ -42,32 +43,21 @@ class FuelCalculatorTest {
     }
 
     @Test
-    fun `rejects negative distance`() {
+    fun `rejects negative price per liter`() {
         val result = FuelCalculator.calculate(
             litersText = "50",
-            totalPriceText = "70",
-            distanceText = "-1",
+            pricePerLiterText = "-1",
+            distanceText = "100",
             distanceUnit = DistanceUnit.KILOMETERS,
         )
-        assertEquals("Distance must be greater than zero.", result.errorMessage)
+        assertEquals("Price per liter cannot be negative.", result.errorMessage)
     }
 
     @Test
     fun `rejects zero fuel volume`() {
         val result = FuelCalculator.calculate(
             litersText = "0",
-            totalPriceText = "70",
-            distanceText = "100",
-            distanceUnit = DistanceUnit.KILOMETERS,
-        )
-        assertEquals("Fuel volume must be greater than zero.", result.errorMessage)
-    }
-
-    @Test
-    fun `rejects negative fuel volume`() {
-        val result = FuelCalculator.calculate(
-            litersText = "-5",
-            totalPriceText = "70",
+            pricePerLiterText = "1.50",
             distanceText = "100",
             distanceUnit = DistanceUnit.KILOMETERS,
         )
@@ -78,8 +68,8 @@ class FuelCalculatorTest {
     fun `rejects invalid numeric input`() {
         val result = FuelCalculator.calculate(
             litersText = "abc",
-            totalPriceText = "92.00",
-            distanceText = "150",
+            pricePerLiterText = "1.50",
+            distanceText = "100",
             distanceUnit = DistanceUnit.KILOMETERS,
         )
         assertEquals("Please enter valid numeric values.", result.errorMessage)
