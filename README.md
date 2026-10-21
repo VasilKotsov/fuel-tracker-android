@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="assets/fuel-tracker-icon.png"
+       width="180"
+       alt="Fuel Tracker app icon">
+</p>
+
 # Fuel Tracker Android
 
 A minimal Android app for tracking fuel consumption, cost, and mileage calculations offline.
