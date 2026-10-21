@@ -30,12 +30,12 @@ object FuelCalculator {
 
     fun calculate(
         litersText: String,
-        totalPriceText: String,
+        pricePerLiterText: String,
         distanceText: String,
         distanceUnit: DistanceUnit,
     ): FuelCalculationResult {
         val liters = litersText.toBigDecimalOrNull()
-        val pricePerLiter = totalPriceText.toBigDecimalOrNull()
+        val pricePerLiter = pricePerLiterText.toBigDecimalOrNull()
         val distance = distanceText.toBigDecimalOrNull()
 
         if (liters == null || pricePerLiter == null || distance == null) {
