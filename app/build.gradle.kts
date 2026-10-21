@@ -11,15 +11,15 @@ android {
         applicationId = "com.example.fueltracker"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            // use default AGP debug keystore
+            // Let AGP use the default debug keystore.
         }
         release {
             isMinifyEnabled = false
