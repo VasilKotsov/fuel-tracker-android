@@ -16,19 +16,19 @@ class FuelCalculatorTest {
             distanceUnit = DistanceUnit.MILES,
         )
 
-        assertEquals(BigDecimal("691.02"), result.distanceKm)
+        assertEquals(BigDecimal("692.02"), result.distanceKm)
         assertEquals(BigDecimal("99.00"), result.totalCost)
-        assertEquals(BigDecimal("8.68"), result.fuelConsumption)
-        assertEquals(BigDecimal("11.52"), result.fuelEfficiency)
+        assertEquals(BigDecimal("8.67"), result.fuelConsumption)
+        assertEquals(BigDecimal("11.53"), result.fuelEfficiency)
         assertEquals(BigDecimal("1.65"), result.pricePerLiter)
         assertEquals(BigDecimal("0.143"), result.costPerKilometer)
-        assertEquals(BigDecimal("14.33"), result.costPer100Km)
+        assertEquals(BigDecimal("14.30"), result.costPer100Km)
     }
 
     @Test
     fun `converts miles to kilometers using exact factor`() {
         val converted = FuelCalculator.convertDistanceToKilometers(BigDecimal("430"), DistanceUnit.MILES)
-        assertEquals(BigDecimal("691.02"), converted.setScale(2, RoundingMode.HALF_UP))
+        assertEquals(BigDecimal("692.02"), converted.setScale(2, RoundingMode.HALF_UP))
     }
 
     @Test
