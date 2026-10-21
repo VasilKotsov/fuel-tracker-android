@@ -22,7 +22,7 @@ class FuelCalculatorTest {
         assertEquals(BigDecimal("11.53"), result.fuelEfficiency)
         assertEquals(BigDecimal("1.65"), result.pricePerLiter)
         assertEquals(BigDecimal("0.143"), result.costPerKilometer)
-        assertEquals(BigDecimal("14.30"), result.costPer100Km)
+        assertEquals(BigDecimal("14.31"), result.costPer100Km)
     }
 
     @Test
