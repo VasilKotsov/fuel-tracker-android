@@ -7,19 +7,31 @@ android {
     namespace = "com.example.fueltracker"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            val keystoreFile = System.getenv("KEYSTORE_FILE")
+            if (!keystoreFile.isNullOrBlank()) {
+                storeFile = file(keystoreFile)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = System.getenv("KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.fueltracker"
         minSdk = 24
         targetSdk = 34
         versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 2
-        versionName = "1.${System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1}"
+        versionName = "1.0.${System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            // Let AGP use the default debug keystore.
+            // Let AGP use the default debug keystore for local debugging.
         }
         release {
             isMinifyEnabled = false
@@ -27,6 +39,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = if (System.getenv("KEYSTORE_FILE").isNullOrBlank()) {
+                signingConfigs.getByName("debug")
+            } else {
+                signingConfigs.getByName("release")
+            }
         }
     }
 
