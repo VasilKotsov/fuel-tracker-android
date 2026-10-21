@@ -28,14 +28,14 @@ import java.math.RoundingMode
 
 @Composable
 fun FuelTrackerApp() {
-    var litersText by rememberSaveable { mutableStateOf("56.8") }
-    var totalPriceText by rememberSaveable { mutableStateOf("92.00") }
-    var distanceText by rememberSaveable { mutableStateOf("346.9") }
+    var litersText by rememberSaveable { mutableStateOf("60") }
+    var pricePerLiterText by rememberSaveable { mutableStateOf("1.65") }
+    var distanceText by rememberSaveable { mutableStateOf("430") }
     var distanceUnit by rememberSaveable { mutableStateOf(DistanceUnit.MILES) }
 
     val calculation = FuelCalculator.calculate(
         litersText = litersText,
-        totalPriceText = totalPriceText,
+        pricePerLiterText = pricePerLiterText,
         distanceText = distanceText,
         distanceUnit = distanceUnit,
     )
@@ -69,9 +69,9 @@ fun FuelTrackerApp() {
                     )
 
                     OutlinedTextField(
-                        value = totalPriceText,
-                        onValueChange = { totalPriceText = it },
-                        label = { Text("Total price (€)") },
+                        value = pricePerLiterText,
+                        onValueChange = { pricePerLiterText = it },
+                        label = { Text("Price per liter (€)") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -113,9 +113,10 @@ fun FuelTrackerApp() {
                             ) {
                                 Text("Estimated result", style = MaterialTheme.typography.titleMedium)
                                 Text("Distance: ${formatDecimal(calculation.distanceKm)} km")
+                                Text("Total cost: €${formatDecimal(calculation.totalCost)}")
                                 Text("Consumption: ${formatDecimal(calculation.fuelConsumption)} L/100 km")
                                 Text("Efficiency: ${formatDecimal(calculation.fuelEfficiency)} km/L")
-                                Text("Price/liter: €${formatDecimal(calculation.pricePerLiter)}")
+                                Text("Price per liter: €${formatDecimal(calculation.pricePerLiter)}")
                                 Text("Cost/km: €${formatDecimal(calculation.costPerKilometer, 3)}")
                                 Text("Cost/100 km: €${formatDecimal(calculation.costPer100Km)}")
                             }
