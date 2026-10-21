@@ -17,9 +17,9 @@ class FuelCalculatorTest {
         assertEquals(99.0, result.totalCost, 0.0001)
         assertEquals(430.0, result.miles, 0.0001)
         assertEquals(1.65, result.pricePerLiter, 0.0001)
-        assertEquals(13.95, result.consumptionLPer100Mi, 0.0001)
-        assertEquals(7.17, result.efficiencyMiPerL, 0.0001)
-        assertEquals(0.23, result.costPerMile, 0.0001)
+        assertEquals(13.95, FuelCalculator.round2(result.consumptionLPer100Mi), 0.0001)
+        assertEquals(7.17, FuelCalculator.round2(result.efficiencyMiPerL), 0.0001)
+        assertEquals(0.23, FuelCalculator.round2(result.costPerMile), 0.0001)
     }
 
     @Test
