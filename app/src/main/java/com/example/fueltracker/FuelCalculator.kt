@@ -10,6 +10,7 @@ enum class DistanceUnit {
 
 data class FuelCalculationResult(
     val distanceKm: BigDecimal? = null,
+    val totalCost: BigDecimal? = null,
     val fuelConsumption: BigDecimal? = null,
     val fuelEfficiency: BigDecimal? = null,
     val pricePerLiter: BigDecimal? = null,
@@ -21,7 +22,7 @@ data class FuelCalculationResult(
 object FuelCalculator {
     private val ZERO = BigDecimal.ZERO
     private val HUNDRED = BigDecimal("100")
-    private val MILES_TO_KM = BigDecimal("1.60925")
+    private val MILES_TO_KM = BigDecimal("1.609344")
 
     fun convertDistanceToKilometers(value: BigDecimal, unit: DistanceUnit): BigDecimal {
         return if (unit == DistanceUnit.MILES) value.multiply(MILES_TO_KM) else value
@@ -34,10 +35,10 @@ object FuelCalculator {
         distanceUnit: DistanceUnit,
     ): FuelCalculationResult {
         val liters = litersText.toBigDecimalOrNull()
-        val totalPrice = totalPriceText.toBigDecimalOrNull()
+        val pricePerLiter = totalPriceText.toBigDecimalOrNull()
         val distance = distanceText.toBigDecimalOrNull()
 
-        if (liters == null || totalPrice == null || distance == null) {
+        if (liters == null || pricePerLiter == null || distance == null) {
             return FuelCalculationResult(errorMessage = "Please enter valid numeric values.")
         }
 
@@ -49,21 +50,21 @@ object FuelCalculator {
             return FuelCalculationResult(errorMessage = "Fuel volume must be greater than zero.")
         }
 
-        if (totalPrice < ZERO) {
-            return FuelCalculationResult(errorMessage = "Total price cannot be negative.")
+        if (pricePerLiter < ZERO) {
+            return FuelCalculationResult(errorMessage = "Price per liter cannot be negative.")
         }
 
         val distanceKm = convertDistanceToKilometers(distance, distanceUnit)
-
+        val totalCost = liters.multiply(pricePerLiter)
         val fuelConsumption = liters.divide(distanceKm, 6, RoundingMode.HALF_UP)
             .multiply(HUNDRED)
         val fuelEfficiency = distanceKm.divide(liters, 6, RoundingMode.HALF_UP)
-        val pricePerLiter = totalPrice.divide(liters, 6, RoundingMode.HALF_UP)
-        val costPerKilometer = totalPrice.divide(distanceKm, 6, RoundingMode.HALF_UP)
+        val costPerKilometer = totalCost.divide(distanceKm, 6, RoundingMode.HALF_UP)
         val costPer100Km = costPerKilometer.multiply(HUNDRED)
 
         return FuelCalculationResult(
             distanceKm = distanceKm.setScale(2, RoundingMode.HALF_UP),
+            totalCost = totalCost.setScale(2, RoundingMode.HALF_UP),
             fuelConsumption = fuelConsumption.setScale(2, RoundingMode.HALF_UP),
             fuelEfficiency = fuelEfficiency.setScale(2, RoundingMode.HALF_UP),
             pricePerLiter = pricePerLiter.setScale(2, RoundingMode.HALF_UP),
