@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_USER_HOME: ${{ github.workspace }}/.android
-      HOME: ${{ github.workspace }}
 
     steps:
       - name: Check out repository
@@ -22,22 +19,25 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
-      - name: Install Android SDK packages
+      - name: Install Android SDK
         run: |
-          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
-          mkdir -p "$ANDROID_SDK_ROOT"
-          yes | sudo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses
-          sudo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          mkdir -p "$HOME/android-sdk"
+          cd "$HOME/android-sdk"
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+          unzip -q tools.zip
+          mkdir -p cmdline-tools
+          mv cmdline-tools cmdline-tools-old
+          mkdir -p cmdline-tools
+          mv cmdline-tools-old cmdline-tools/latest
 
-      - name: Prepare writable Android home
+      - name: Accept SDK licenses and install required packages
         run: |
-          mkdir -p "$ANDROID_USER_HOME"
-          chmod -R 777 "$ANDROID_USER_HOME"
-
-      - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.jks
+          yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
@@ -45,17 +45,11 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test
 
-      - name: Build signed release APK
-        env:
-          GITHUB_RUN_NUMBER: ${{ github.run_number }}
-          KEYSTORE_FILE: ${{ github.workspace }}/release.jks
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fuel-tracker-release-apk-${{ github.run_number }}
-          path: app/build/outputs/apk/release/app-release.apk
+          name: fuel-tracker-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
