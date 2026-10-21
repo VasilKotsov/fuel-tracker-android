@@ -17,18 +17,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        create("debug") {
-            storeFile = file("${rootProject.rootDir}/keystore/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
-
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("debug")
+            // Let AGP use the default debug keystore.
         }
         release {
             isMinifyEnabled = false
