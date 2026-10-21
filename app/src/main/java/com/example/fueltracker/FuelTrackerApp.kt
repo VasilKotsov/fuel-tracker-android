@@ -30,10 +30,10 @@ import java.math.RoundingMode
 
 @Composable
 fun FuelTrackerApp() {
-    var litersText by rememberSaveable { mutableStateOf("61") }
-    var pricePerLiterText by rememberSaveable { mutableStateOf("1.61") }
-    var distanceText by rememberSaveable { mutableStateOf("466") }
-    var distanceUnit by rememberSaveable { mutableStateOf(DistanceUnit.MILES) }
+    var litersText by rememberSaveable { mutableStateOf("56.80") }
+    var pricePerLiterText by rememberSaveable { mutableStateOf("1.62") }
+    var distanceText by rememberSaveable { mutableStateOf("346.9") }
+    var distanceUnit by rememberSaveable { mutableStateOf(DistanceUnit.KILOMETERS) }
 
     val calculation = FuelCalculator.calculate(
         litersText = litersText,
@@ -46,9 +46,9 @@ fun FuelTrackerApp() {
     val distanceKm = FuelCalculator.convertDistanceToKilometers(distanceInput, distanceUnit)
     val distanceMiles = FuelCalculator.convertDistanceToMiles(distanceKm)
 
-    val primarySection = if (distanceUnit == DistanceUnit.KILOMETERS) {
+    val primaryResults: List<String> = if (distanceUnit == DistanceUnit.KILOMETERS) {
         listOf(
-            "Distance: ${formatDecimal(distanceKm)} km",
+            "Distance: ${formatDecimal(calculation.distanceKm)} km",
             "Total cost: €${formatDecimal(calculation.totalCost)}",
             "Consumption: ${formatDecimal(calculation.fuelConsumption)} L/100 km",
             "Efficiency: ${formatDecimal(calculation.fuelEfficiency)} km/L",
@@ -58,16 +58,16 @@ fun FuelTrackerApp() {
         )
     } else {
         val milesConsumption = FuelCalculator.convertConsumptionPer100KmToPer100Miles(
-            calculation.fuelConsumption ?: BigDecimal.ZERO
+            calculation.fuelConsumption ?: BigDecimal.ZERO,
         )
         val milesEfficiency = FuelCalculator.convertEfficiencyKmPerLiterToMilesPerLiter(
-            calculation.fuelEfficiency ?: BigDecimal.ZERO
+            calculation.fuelEfficiency ?: BigDecimal.ZERO,
         )
         val milesCostPerDistance = FuelCalculator.convertCostPerKmToCostPerMile(
-            calculation.costPerKilometer ?: BigDecimal.ZERO
+            calculation.costPerKilometer ?: BigDecimal.ZERO,
         )
         val milesCostPer100 = FuelCalculator.convertCostPer100KmToCostPer100Miles(
-            calculation.costPer100Km ?: BigDecimal.ZERO
+            calculation.costPer100Km ?: BigDecimal.ZERO,
         )
 
         listOf(
@@ -81,19 +81,19 @@ fun FuelTrackerApp() {
         )
     }
 
-    val convertedSection = if (distanceUnit == DistanceUnit.KILOMETERS) {
+    val convertedResults: List<String> = if (distanceUnit == DistanceUnit.KILOMETERS) {
         val milesDistance = FuelCalculator.convertDistanceToMiles(distanceKm)
         val milesConsumption = FuelCalculator.convertConsumptionPer100KmToPer100Miles(
-            calculation.fuelConsumption ?: BigDecimal.ZERO
+            calculation.fuelConsumption ?: BigDecimal.ZERO,
         )
         val milesEfficiency = FuelCalculator.convertEfficiencyKmPerLiterToMilesPerLiter(
-            calculation.fuelEfficiency ?: BigDecimal.ZERO
+            calculation.fuelEfficiency ?: BigDecimal.ZERO,
         )
         val milesCostPerDistance = FuelCalculator.convertCostPerKmToCostPerMile(
-            calculation.costPerKilometer ?: BigDecimal.ZERO
+            calculation.costPerKilometer ?: BigDecimal.ZERO,
         )
         val milesCostPer100 = FuelCalculator.convertCostPer100KmToCostPer100Miles(
-            calculation.costPer100Km ?: BigDecimal.ZERO
+            calculation.costPer100Km ?: BigDecimal.ZERO,
         )
 
         listOf(
@@ -106,16 +106,16 @@ fun FuelTrackerApp() {
     } else {
         val kmDistance = FuelCalculator.convertDistanceToKilometers(distanceInput, DistanceUnit.MILES)
         val kmConsumption = FuelCalculator.convertConsumptionPer100MilesToPer100Km(
-            calculation.fuelConsumption ?: BigDecimal.ZERO
+            calculation.fuelConsumption ?: BigDecimal.ZERO,
         )
         val kmEfficiency = FuelCalculator.convertEfficiencyMilesPerLiterToKmPerLiter(
-            calculation.fuelEfficiency ?: BigDecimal.ZERO
+            calculation.fuelEfficiency ?: BigDecimal.ZERO,
         )
         val kmCostPerDistance = FuelCalculator.convertCostPerMileToCostPerKm(
-            calculation.costPerKilometer ?: BigDecimal.ZERO
+            calculation.costPerKilometer ?: BigDecimal.ZERO,
         )
         val kmCostPer100 = FuelCalculator.convertCostPer100MilesToCostPer100Km(
-            calculation.costPer100Km ?: BigDecimal.ZERO
+            calculation.costPer100Km ?: BigDecimal.ZERO,
         )
 
         listOf(
@@ -181,7 +181,6 @@ fun FuelTrackerApp() {
                             onClick = { distanceUnit = DistanceUnit.KILOMETERS },
                             modifier = Modifier.weight(1f),
                         )
-
                         UnitToggleButton(
                             label = "mi",
                             selected = distanceUnit == DistanceUnit.MILES,
@@ -202,12 +201,9 @@ fun FuelTrackerApp() {
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                Text(
-                                    text = "Estimated result",
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
+                                Text("Estimated result", style = MaterialTheme.typography.titleMedium)
 
-                                primarySection.forEach { text ->
+                                primaryResults.forEach { text ->
                                     Text(text)
                                 }
 
@@ -220,7 +216,7 @@ fun FuelTrackerApp() {
                                     style = MaterialTheme.typography.titleMedium,
                                 )
 
-                                convertedSection.forEach { text ->
+                                convertedResults.forEach { text ->
                                     Text(text)
                                 }
                             }
