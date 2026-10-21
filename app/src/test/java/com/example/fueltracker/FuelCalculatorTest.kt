@@ -40,7 +40,7 @@ class FuelCalculatorTest {
     @Test
     fun `converts fuel consumption from per 100km to per 100 miles`() {
         val converted = FuelCalculator.convertConsumptionPer100KmToPer100Miles(BigDecimal("8.13"))
-        assertEquals(BigDecimal("13.09"), converted.setScale(2, RoundingMode.HALF_UP))
+        assertEquals(BigDecimal("13.08"), converted.setScale(2, RoundingMode.HALF_UP))
     }
 
     @Test
