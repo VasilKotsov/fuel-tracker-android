@@ -22,10 +22,46 @@ data class FuelCalculationResult(
 object FuelCalculator {
     private val ZERO = BigDecimal.ZERO
     private val HUNDRED = BigDecimal("100")
-    private val MILES_TO_KM = BigDecimal("1.609344")
+    val MILES_TO_KM = BigDecimal("1.609344")
 
     fun convertDistanceToKilometers(value: BigDecimal, unit: DistanceUnit): BigDecimal {
         return if (unit == DistanceUnit.MILES) value.multiply(MILES_TO_KM) else value
+    }
+
+    fun convertDistanceToMiles(valueKm: BigDecimal): BigDecimal {
+        return valueKm.divide(MILES_TO_KM, 6, RoundingMode.HALF_UP)
+    }
+
+    fun convertConsumptionPer100KmToPer100Miles(value: BigDecimal): BigDecimal {
+        return value.multiply(MILES_TO_KM)
+    }
+
+    fun convertConsumptionPer100MilesToPer100Km(value: BigDecimal): BigDecimal {
+        return value.divide(MILES_TO_KM, 6, RoundingMode.HALF_UP)
+    }
+
+    fun convertEfficiencyKmPerLiterToMilesPerLiter(value: BigDecimal): BigDecimal {
+        return value.divide(MILES_TO_KM, 6, RoundingMode.HALF_UP)
+    }
+
+    fun convertEfficiencyMilesPerLiterToKmPerLiter(value: BigDecimal): BigDecimal {
+        return value.multiply(MILES_TO_KM)
+    }
+
+    fun convertCostPerKmToCostPerMile(value: BigDecimal): BigDecimal {
+        return value.multiply(MILES_TO_KM)
+    }
+
+    fun convertCostPerMileToCostPerKm(value: BigDecimal): BigDecimal {
+        return value.divide(MILES_TO_KM, 6, RoundingMode.HALF_UP)
+    }
+
+    fun convertCostPer100KmToCostPer100Miles(value: BigDecimal): BigDecimal {
+        return value.multiply(MILES_TO_KM)
+    }
+
+    fun convertCostPer100MilesToCostPer100Km(value: BigDecimal): BigDecimal {
+        return value.divide(MILES_TO_KM, 6, RoundingMode.HALF_UP)
     }
 
     fun calculate(
@@ -59,6 +95,7 @@ object FuelCalculator {
 
         val fuelConsumption = liters.divide(distanceKm, 6, RoundingMode.HALF_UP)
             .multiply(HUNDRED)
+
         val fuelEfficiency = distanceKm.divide(liters, 6, RoundingMode.HALF_UP)
         val costPerKilometer = totalCost.divide(distanceKm, 6, RoundingMode.HALF_UP)
         val costPer100Km = costPerKilometer.multiply(HUNDRED)
