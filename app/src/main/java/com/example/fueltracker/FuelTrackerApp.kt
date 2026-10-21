@@ -28,6 +28,8 @@ import com.example.fueltracker.ui.theme.FuelTrackerTheme
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+private val ONE_HUNDRED = BigDecimal("100")
+
 @Composable
 fun FuelTrackerApp() {
     var litersText by rememberSaveable { mutableStateOf("56.80") }
@@ -42,9 +44,9 @@ fun FuelTrackerApp() {
         distanceUnit = distanceUnit,
     )
 
+    val liters = litersText.toBigDecimalOrNull() ?: BigDecimal.ZERO
     val distanceInput = distanceText.toBigDecimalOrNull() ?: BigDecimal.ZERO
     val distanceKm = FuelCalculator.convertDistanceToKilometers(distanceInput, distanceUnit)
-    val distanceMiles = FuelCalculator.convertDistanceToMiles(distanceKm)
 
     val primaryResults: List<String> = if (distanceUnit == DistanceUnit.KILOMETERS) {
         listOf(
@@ -57,18 +59,12 @@ fun FuelTrackerApp() {
             "Cost/100 km: €${formatDecimal(calculation.costPer100Km)}",
         )
     } else {
-        val milesConsumption = FuelCalculator.convertConsumptionPer100KmToPer100Miles(
-            calculation.fuelConsumption ?: BigDecimal.ZERO,
-        )
-        val milesEfficiency = FuelCalculator.convertEfficiencyKmPerLiterToMilesPerLiter(
-            calculation.fuelEfficiency ?: BigDecimal.ZERO,
-        )
-        val milesCostPerDistance = FuelCalculator.convertCostPerKmToCostPerMile(
-            calculation.costPerKilometer ?: BigDecimal.ZERO,
-        )
-        val milesCostPer100 = FuelCalculator.convertCostPer100KmToCostPer100Miles(
-            calculation.costPer100Km ?: BigDecimal.ZERO,
-        )
+        val milesConsumption = liters.divide(distanceInput, 6, RoundingMode.HALF_UP)
+            .multiply(ONE_HUNDRED)
+        val milesEfficiency = distanceInput.divide(liters, 6, RoundingMode.HALF_UP)
+        val milesCostPerDistance = (calculation.totalCost ?: BigDecimal.ZERO)
+            .divide(distanceInput, 6, RoundingMode.HALF_UP)
+        val milesCostPer100 = milesCostPerDistance.multiply(ONE_HUNDRED)
 
         listOf(
             "Distance: ${formatDecimal(distanceInput)} mi",
@@ -105,18 +101,12 @@ fun FuelTrackerApp() {
         )
     } else {
         val kmDistance = FuelCalculator.convertDistanceToKilometers(distanceInput, DistanceUnit.MILES)
-        val kmConsumption = FuelCalculator.convertConsumptionPer100MilesToPer100Km(
-            calculation.fuelConsumption ?: BigDecimal.ZERO,
-        )
-        val kmEfficiency = FuelCalculator.convertEfficiencyMilesPerLiterToKmPerLiter(
-            calculation.fuelEfficiency ?: BigDecimal.ZERO,
-        )
-        val kmCostPerDistance = FuelCalculator.convertCostPerMileToCostPerKm(
-            calculation.costPerKilometer ?: BigDecimal.ZERO,
-        )
-        val kmCostPer100 = FuelCalculator.convertCostPer100MilesToCostPer100Km(
-            calculation.costPer100Km ?: BigDecimal.ZERO,
-        )
+        val kmConsumption = liters.divide(kmDistance, 6, RoundingMode.HALF_UP)
+            .multiply(ONE_HUNDRED)
+        val kmEfficiency = kmDistance.divide(liters, 6, RoundingMode.HALF_UP)
+        val kmCostPerDistance = (calculation.totalCost ?: BigDecimal.ZERO)
+            .divide(kmDistance, 6, RoundingMode.HALF_UP)
+        val kmCostPer100 = kmCostPerDistance.multiply(ONE_HUNDRED)
 
         listOf(
             "Distance: ${formatDecimal(kmDistance)} km",
