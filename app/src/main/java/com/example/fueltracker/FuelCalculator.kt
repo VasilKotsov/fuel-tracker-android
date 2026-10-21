@@ -56,6 +56,7 @@ object FuelCalculator {
 
         val distanceKm = convertDistanceToKilometers(distance, distanceUnit)
         val totalCost = liters.multiply(pricePerLiter)
+
         val fuelConsumption = liters.divide(distanceKm, 6, RoundingMode.HALF_UP)
             .multiply(HUNDRED)
         val fuelEfficiency = distanceKm.divide(liters, 6, RoundingMode.HALF_UP)
