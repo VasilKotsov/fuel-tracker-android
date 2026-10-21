@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.fueltracker.ui.theme.FuelTrackerTheme
 import java.math.BigDecimal
@@ -28,9 +30,9 @@ import java.math.RoundingMode
 
 @Composable
 fun FuelTrackerApp() {
-    var litersText by rememberSaveable { mutableStateOf("60") }
-    var pricePerLiterText by rememberSaveable { mutableStateOf("1.65") }
-    var distanceText by rememberSaveable { mutableStateOf("430") }
+    var litersText by rememberSaveable { mutableStateOf("61") }
+    var pricePerLiterText by rememberSaveable { mutableStateOf("1.61") }
+    var distanceText by rememberSaveable { mutableStateOf("466") }
     var distanceUnit by rememberSaveable { mutableStateOf(DistanceUnit.MILES) }
 
     val calculation = FuelCalculator.calculate(
@@ -39,6 +41,91 @@ fun FuelTrackerApp() {
         distanceText = distanceText,
         distanceUnit = distanceUnit,
     )
+
+    val distanceInput = distanceText.toBigDecimalOrNull() ?: BigDecimal.ZERO
+    val distanceKm = FuelCalculator.convertDistanceToKilometers(distanceInput, distanceUnit)
+    val distanceMiles = FuelCalculator.convertDistanceToMiles(distanceKm)
+
+    val primarySection = if (distanceUnit == DistanceUnit.KILOMETERS) {
+        listOf(
+            "Distance: ${formatDecimal(distanceKm)} km",
+            "Total cost: €${formatDecimal(calculation.totalCost)}",
+            "Consumption: ${formatDecimal(calculation.fuelConsumption)} L/100 km",
+            "Efficiency: ${formatDecimal(calculation.fuelEfficiency)} km/L",
+            "Price per liter: €${formatDecimal(calculation.pricePerLiter)}",
+            "Cost/km: €${formatDecimal(calculation.costPerKilometer, 3)}",
+            "Cost/100 km: €${formatDecimal(calculation.costPer100Km)}",
+        )
+    } else {
+        val milesConsumption = FuelCalculator.convertConsumptionPer100KmToPer100Miles(
+            calculation.fuelConsumption ?: BigDecimal.ZERO
+        )
+        val milesEfficiency = FuelCalculator.convertEfficiencyKmPerLiterToMilesPerLiter(
+            calculation.fuelEfficiency ?: BigDecimal.ZERO
+        )
+        val milesCostPerDistance = FuelCalculator.convertCostPerKmToCostPerMile(
+            calculation.costPerKilometer ?: BigDecimal.ZERO
+        )
+        val milesCostPer100 = FuelCalculator.convertCostPer100KmToCostPer100Miles(
+            calculation.costPer100Km ?: BigDecimal.ZERO
+        )
+
+        listOf(
+            "Distance: ${formatDecimal(distanceInput)} mi",
+            "Total cost: €${formatDecimal(calculation.totalCost)}",
+            "Consumption: ${formatDecimal(milesConsumption)} L/100 mi",
+            "Efficiency: ${formatDecimal(milesEfficiency)} mi/L",
+            "Price per liter: €${formatDecimal(calculation.pricePerLiter)}",
+            "Cost/mile: €${formatDecimal(milesCostPerDistance, 3)}",
+            "Cost/100 miles: €${formatDecimal(milesCostPer100)}",
+        )
+    }
+
+    val convertedSection = if (distanceUnit == DistanceUnit.KILOMETERS) {
+        val milesDistance = FuelCalculator.convertDistanceToMiles(distanceKm)
+        val milesConsumption = FuelCalculator.convertConsumptionPer100KmToPer100Miles(
+            calculation.fuelConsumption ?: BigDecimal.ZERO
+        )
+        val milesEfficiency = FuelCalculator.convertEfficiencyKmPerLiterToMilesPerLiter(
+            calculation.fuelEfficiency ?: BigDecimal.ZERO
+        )
+        val milesCostPerDistance = FuelCalculator.convertCostPerKmToCostPerMile(
+            calculation.costPerKilometer ?: BigDecimal.ZERO
+        )
+        val milesCostPer100 = FuelCalculator.convertCostPer100KmToCostPer100Miles(
+            calculation.costPer100Km ?: BigDecimal.ZERO
+        )
+
+        listOf(
+            "Distance: ${formatDecimal(milesDistance)} mi",
+            "Consumption: ${formatDecimal(milesConsumption)} L/100 mi",
+            "Efficiency: ${formatDecimal(milesEfficiency)} mi/L",
+            "Cost/mile: €${formatDecimal(milesCostPerDistance, 3)}",
+            "Cost/100 miles: €${formatDecimal(milesCostPer100)}",
+        )
+    } else {
+        val kmDistance = FuelCalculator.convertDistanceToKilometers(distanceInput, DistanceUnit.MILES)
+        val kmConsumption = FuelCalculator.convertConsumptionPer100MilesToPer100Km(
+            calculation.fuelConsumption ?: BigDecimal.ZERO
+        )
+        val kmEfficiency = FuelCalculator.convertEfficiencyMilesPerLiterToKmPerLiter(
+            calculation.fuelEfficiency ?: BigDecimal.ZERO
+        )
+        val kmCostPerDistance = FuelCalculator.convertCostPerMileToCostPerKm(
+            calculation.costPerKilometer ?: BigDecimal.ZERO
+        )
+        val kmCostPer100 = FuelCalculator.convertCostPer100MilesToCostPer100Km(
+            calculation.costPer100Km ?: BigDecimal.ZERO
+        )
+
+        listOf(
+            "Distance: ${formatDecimal(kmDistance)} km",
+            "Consumption: ${formatDecimal(kmConsumption)} L/100 km",
+            "Efficiency: ${formatDecimal(kmEfficiency)} km/L",
+            "Cost/km: €${formatDecimal(kmCostPerDistance, 3)}",
+            "Cost/100 km: €${formatDecimal(kmCostPer100)}",
+        )
+    }
 
     FuelTrackerTheme {
         Scaffold { paddingValues ->
@@ -84,19 +171,23 @@ fun FuelTrackerApp() {
                         singleLine = true,
                     )
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        UnitToggleButton(
+                            label = "km",
+                            selected = distanceUnit == DistanceUnit.KILOMETERS,
                             onClick = { distanceUnit = DistanceUnit.KILOMETERS },
-                            enabled = distanceUnit != DistanceUnit.KILOMETERS,
-                        ) {
-                            Text("km")
-                        }
-                        Button(
+                            modifier = Modifier.weight(1f),
+                        )
+
+                        UnitToggleButton(
+                            label = "mi",
+                            selected = distanceUnit == DistanceUnit.MILES,
                             onClick = { distanceUnit = DistanceUnit.MILES },
-                            enabled = distanceUnit != DistanceUnit.MILES,
-                        ) {
-                            Text("mi")
-                        }
+                            modifier = Modifier.weight(1f),
+                        )
                     }
 
                     if (calculation.errorMessage != null) {
@@ -111,20 +202,60 @@ fun FuelTrackerApp() {
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                Text("Estimated result", style = MaterialTheme.typography.titleMedium)
-                                Text("Distance: ${formatDecimal(calculation.distanceKm)} km")
-                                Text("Total cost: €${formatDecimal(calculation.totalCost)}")
-                                Text("Consumption: ${formatDecimal(calculation.fuelConsumption)} L/100 km")
-                                Text("Efficiency: ${formatDecimal(calculation.fuelEfficiency)} km/L")
-                                Text("Price per liter: €${formatDecimal(calculation.pricePerLiter)}")
-                                Text("Cost/km: €${formatDecimal(calculation.costPerKilometer, 3)}")
-                                Text("Cost/100 km: €${formatDecimal(calculation.costPer100Km)}")
+                                Text(
+                                    text = "Estimated result",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+
+                                primarySection.forEach { text ->
+                                    Text(text)
+                                }
+
+                                Text(
+                                    text = if (distanceUnit == DistanceUnit.KILOMETERS) {
+                                        "Converted results (miles)"
+                                    } else {
+                                        "Converted results (kilometers)"
+                                    },
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+
+                                convertedSection.forEach { text ->
+                                    Text(text)
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun UnitToggleButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedColor = Color(0xFF9AD6A5)
+    val unselectedColor = Color(0xFF3A3A3C)
+    val textColor = if (selected) Color(0xFF111111) else Color(0xFFEAEAEA)
+
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) selectedColor else unselectedColor,
+            contentColor = textColor,
+        ),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+        )
     }
 }
 
